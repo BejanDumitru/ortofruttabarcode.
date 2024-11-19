@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Barcode PDF</title>
+    <!-- Include JsBarcode per la generazione dei codici a barre -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.0/JsBarcode.all.min.js"></script>
+    <!-- Include jsPDF per la creazione del PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        input {
+            padding: 5px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generatore Barcode EAN-13</h1>
+    <label for="ean">Inserisci il codice EAN-13:</label>
+    <input type="text" id="ean" maxlength="13" placeholder="EAN-13" required>
+    <br>
+    <label for="description">Inserisci la descrizione:</label>
+    <input type="text" id="description" placeholder="Descrizione" required>
+    <br>
+    <button onclick="generateBarcode()">Genera PDF</button>
+
+    <div id="barcode-output" style="display:none;">
+        <svg id="barcode"></svg>
+    </div>
+
+    <!-- Collegamento al file JavaScript esterno -->
+    <script src="barcodeGenerator.js"></script>
+</body>
+</html>
