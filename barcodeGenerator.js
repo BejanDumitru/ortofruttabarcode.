@@ -1,67 +1,75 @@
-// Funzione per generare il PDF
-function generatePDF(barcodeData, description) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const margin = 10;
-    const cols = 8; // 8 colonne
-    const rows = 3; // 3 righe
-    const width = (doc.internal.pageSize.width - margin * 2) / cols;
-    const height = (doc.internal.pageSize.height - margin * 2) / rows;
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Barcode EAN-13</title>
 
-    // Ciclo per generare i codici a barre nelle celle
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            const x = margin + j * width;
-            const y = margin + i * height;
+    <!-- JsBarcode CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.0/JsBarcode.all.min.js"></script>
 
-            // Genera il codice a barre con JsBarcode
-            JsBarcode("#barcode", barcodeData, {
-                format: "EAN13",
-                width: width * 0.7,
-                height: height * 0.6,
-                displayValue: false
-            });
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Generatore Barcode EAN-13</h1>
 
-            // Ottieni l'immagine SVG del codice a barre
-            const barcodeSVG = document.querySelector('#barcode');
-            const barcodeDataUrl = barcodeSVG.outerHTML;
+    <!-- Input per il codice EAN-13 -->
+    <label for="ean">Inserisci il codice EAN-13:</label>
+    <input type="text" id="ean" maxlength="13" placeholder="EAN-13" required>
+    <br>
 
-            // Aggiungi il codice a barre nel PDF
-            doc.svg(barcodeDataUrl, {
-                x: x,
-                y: y,
-                width: width * 0.7,
-                height: height * 0.6
-            });
+    <!-- Input per la descrizione -->
+    <label for="description">Inserisci la descrizione:</label>
+    <input type="text" id="description" placeholder="Descrizione" required>
+    <br>
 
-            // Aggiungi la descrizione sotto il codice a barre
-            doc.setFontSize(8);
-            doc.text(description, x, y + height * 0.7);
+    <!-- Bottone per generare il PDF -->
+    <button onclick="generatePDF()">Genera PDF</button>
+
+    <!-- Dove visualizzare il codice a barre -->
+    <div id="barcode-container">
+        <svg id="barcode"></svg>
+    </div>
+
+    <script>
+        function generatePDF() {
+            // Ottieni il codice EAN-13 inserito
+            const ean = document.getElementById("ean").value.trim(); // Rimuovi eventuali spazi
+            const description = document.getElementById("description").value.trim();
+
+            // Verifica che il codice EAN-13 sia valido (13 cifre numeriche)
+            if (ean.length === 13 && /^[0-9]+$/.test(ean)) {
+                // Usa JsBarcode per generare il codice a barre SVG
+                JsBarcode("#barcode", ean, {
+                    format: "EAN13",
+                    lineColor: "#0aa",
+                    width: 4,
+                    height: 40,
+                    displayValue: false // Non mostrare il valore sotto il codice a barre
+                });
+
+                // Crea un nuovo documento PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Aggiungi il codice a barre al PDF
+                const barcodeImage = document.getElementById('barcode').children[0];
+                const imgData = barcodeImage.toDataURL('image/png');
+                doc.addImage(imgData, 'PNG', 10, 10, 180, 30);
+
+                // Aggiungi la descrizione al PDF
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.text(10, 50, `Descrizione: ${description}`);
+
+                // Scarica il PDF
+                doc.save("barcode.pdf");
+            } else {
+                // Se il codice EAN non è valido, mostra un messaggio di errore
+                alert("Il codice EAN-13 deve essere composto da 13 cifre numeriche!");
+            }
         }
-    }
-
-    // Salva il PDF generato
-    doc.save("barcodes.pdf");
-}
-
-// Funzione per generare il barcode e creare il PDF
-function generateBarcode() {
-    const ean = document.getElementById('ean').value;
-    const description = document.getElementById('description').value;
-
-    // Verifica che l'input EAN-13 sia valido (13 cifre) e che la descrizione non sia vuota
-    if (ean.length === 13 && description) {
-        // Genera il barcode
-        JsBarcode("#barcode", ean, {
-            format: "EAN13",
-            width: 2,
-            height: 40,
-            displayValue: false
-        });
-
-        // Crea e scarica il PDF
-        generatePDF(ean, description);
-    } else {
-        alert("Per favore, inserisci un codice EAN-13 valido e una descrizione.");
-    }
-}
+    </script>
+</body>
+</html>
